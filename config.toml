@@ -1,0 +1,73 @@
+# Qwen sandbox settings.
+#
+# Every key is optional: delete or comment out a line to use the built-in
+# default. The values below are the defaults (tuned for speed with decent
+# quality); commented-out lines show optional settings. Command-line flags
+# (--image, --cpus, --memory, --max-steps) override this file.
+
+[model]
+# Any mlx-lm model with tool-calling support (Hugging Face repo or local path).
+# The 4-bit 27B is the best fit for 32 GB of RAM (~16 GB of weights).
+name = "mlx-community/Qwen3.8-27B-4bit"
+temperature = 0.6
+top_p = 0.95
+top_k = 20
+# Max tokens per model response (thinking included).
+max_tokens = 4096
+# Think before answering. false is much faster but makes more mistakes on
+# multi-step tasks.
+thinking = false
+# How long the model thinks: "low" (fast), "medium", or "xhigh" (slow, the
+# model's own default). Only used when thinking = true.
+reasoning_effort = "low"
+# Keep earlier turns' reasoning in the conversation. This lets the prompt cache
+# reuse the whole history; false makes the context shorter, but the cache has
+# to be rebuilt after every new message.
+keep_thinking = true
+# Fixed random seed for reproducible runs.
+# seed = 0
+# Instructions given to the agent. Update the package-manager hint if you
+# change container.image.
+system_prompt = """\
+You are an autonomous agent with root access to a disposable Linux container. \
+Use the `run` tool to execute shell commands there (on Alpine, install packages \
+with `apk add`). Work step by step, check results, and fix errors yourself. \
+When the task is complete, reply with a short summary and no tool call."""
+
+[performance]
+# Reuse already-processed conversation between steps instead of re-reading the
+# whole history every time. Only turn off to debug.
+prompt_cache = true
+# Prompt tokens processed per batch. Lower uses less memory; higher can be a
+# little faster for long prompts.
+prefill_step_size = 2048
+# Quantize the KV cache to save memory on long conversations (4 or 8). Slightly
+# lower quality and usually not faster; leave off unless memory is tight.
+# kv_bits = 8
+# kv_group_size = 64
+# quantized_kv_start = 0
+# Speculative decoding with a small draft model (same tokenizer). Does NOT work
+# with Qwen3.8/3.5 (hybrid attention, their cache can't be rewound), only with
+# standard-attention models.
+# draft_model = "mlx-community/Qwen3-0.6B-4bit"
+# num_draft_tokens = 3
+
+[container]
+# Needs `sh` and `timeout` (busybox or coreutils).
+image = "alpine:latest"
+# Leave unset to use apple/container's defaults (4 CPUs, 1 GB).
+# cpus = 4
+# memory = "2G"
+
+[agent]
+# Max tool calls the agent may make for one reply.
+max_steps = 30
+# Seconds before a command is killed.
+command_timeout = 300
+# Characters of command output sent back to the model (keeps the start and
+# end). Less output = less to read each step and a smaller context.
+max_output = 4000
+
+[display]
+# Lines of command output shown in the terminal per command.
+output_lines = 15
