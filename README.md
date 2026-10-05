@@ -17,7 +17,7 @@ A simple, fast, macOS-only agent. It runs a local LLM with [MLX](https://github.
 ## Install
 
 ```bash
-git clone https://github.com/pwngd/mlx-container-agent.git
+git clone https://github.com/alex-tnk/mlx-container-agent.git
 ```
 
 ```bash
